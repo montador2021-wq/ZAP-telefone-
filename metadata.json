@@ -1,0 +1,6 @@
+{
+  "name": "ZapVendedor - Lista de Espera & WhatsApp",
+  "description": "Aplicativo para vendedores anotarem clientes em lista de espera, organizarem por categorias coloridas e dispararem mensagens no WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

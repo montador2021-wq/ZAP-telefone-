@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="bubble" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#022c22" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg)" />
+  <g filter="url(#shadow)">
+    <!-- WhatsApp / Chat Bubble shape with checkmark and star badge -->
+    <path d="M256 96 C167.6 96 96 167.6 96 256 C96 288.6 105.8 319.4 123.4 345.2 L106 408 L171.2 391.2 C196.2 407.2 225.4 416 256 416 C344.4 416 416 344.4 416 256 C416 167.6 344.4 96 256 96 Z" fill="#ffffff" />
+    <!-- Inner icon: Shopping bag + message check -->
+    <path d="M208 240 C208 213.5 229.5 192 256 192 C282.5 192 304 213.5 304 240 M176 240 L336 240 L320 336 C320 344.8 312.8 352 304 352 L208 352 C199.2 352 192 344.8 192 336 Z" fill="none" stroke="#059669" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Checkmark badge -->
+    <circle cx="340" cy="180" r="42" fill="#F59E0B" />
+    <path d="M324 180 L334 190 L356 168" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
