@@ -64,11 +64,11 @@ export const Header: React.FC<Props> = ({
             {selectedCount > 0 && (
               <button
                 onClick={onOpenBulkSendModal}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-sky-500 hover:from-indigo-400 hover:to-sky-400 text-slate-950 rounded-xl text-xs font-black shadow-md shadow-indigo-500/20 transition active:scale-95 cursor-pointer animate-pulse"
-                title="Avisar clientes selecionados com remetente da loja"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 rounded-xl text-xs font-black shadow-md shadow-emerald-500/20 transition active:scale-95 cursor-pointer animate-pulse"
+                title="Mandar Zap para clientes selecionados"
               >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Avisar ({selectedCount})</span>
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Mandar Zap ({selectedCount})</span>
               </button>
             )}
 

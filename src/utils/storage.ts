@@ -115,33 +115,23 @@ export const INITIAL_LEADS: CustomerLead[] = [
 export const DEFAULT_TEMPLATES: MessageTemplate[] = [
   {
     id: 'tmpl-1',
-    title: '📦 O produto chegou! (WhatsApp)',
-    channel: 'whatsapp',
+    title: '📦 O produto chegou! (Aviso Principal)',
     body: 'Olá, {nome}! Tudo bem? 😊\n\nBoas notícias: o produto que você estava esperando ({produto}) acabou de chegar aqui na {loja}! 📦✨\n\nJá reservei com prioridade no seu nome. Consegue dar um pulinho aqui na loja hoje ou quer que eu te mande fotos e vídeos agora mesmo?\n\nAtt, {vendedor}',
   },
   {
     id: 'tmpl-2',
-    title: '🚚 Previsão de Chegada (WhatsApp)',
-    channel: 'whatsapp',
+    title: '🚚 Previsão de Chegada / A Caminho',
     body: 'Oi, {nome}! Aqui é o {vendedor} da {loja}. Tudo ótimo por aí?\n\nPassando para te avisar que o seu pedido de {produto} tem previsão de entrega confirmada para {data_retorno}. Assim que descarregar no estoque eu já te mando mensagem!\n\nUm grande abraço!',
   },
   {
     id: 'tmpl-3',
-    title: '💬 SMS Curto: Chegou o Produto (SMS)',
-    channel: 'sms',
-    body: '📦 {loja}: Ola {nome}! O produto que voce esperava ({produto}) acabou de chegar! Venha retirar ou responda para reservar.',
+    title: '✨ Novidade na Categoria',
+    body: 'Olá, {nome}! Tudo bem? 😊\n\nLembrei de você porque acabaram de chegar novidades incríveis na categoria {categoria} aqui na {loja}! 🌟\n\nSe quiser dar uma olhadinha nos modelos e fotos, me avise que te mando por aqui!\n\nAtt, {vendedor}',
   },
   {
     id: 'tmpl-4',
-    title: '🔔 SMS Curto: Previsao / Retorno (SMS)',
-    channel: 'sms',
-    body: '🚚 {loja}: Ola {nome}! O seu pedido ({produto}) tem entrega prevista para {data_retorno}. Qualquer duvida responda este SMS.',
-  },
-  {
-    id: 'tmpl-5',
-    title: '🎉 SMS Alerta: Promocao & Novidades (SMS)',
-    channel: 'sms',
-    body: '✨ {loja}: Ola {nome}! Chegaram novidades na categoria {categoria} com precos especiais. Venha conferir!',
+    title: '💬 Mensagem Direta & Rápida',
+    body: 'Olá, {nome}! Aqui é o {vendedor} da {loja}. Chegou o produto que você pediu ({produto}). Posso reservar para você vir retirar hoje?',
   },
 ];
 
@@ -149,10 +139,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   sellerName: 'Vendedor',
   storeName: 'Nossa Loja',
   countryCode: '55',
-  smsSenderName: 'LOJA_AVISO',
-  defaultChannel: 'store_gateway',
-  privacyMode: 'store_only', // 100% protege o celular pessoal do vendedor
-  gatewayProvider: 'store_cloud',
 };
 
 // Storage operations

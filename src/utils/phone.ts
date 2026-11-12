@@ -53,34 +53,6 @@ export function buildWhatsAppUrl(phone: string, message: string, defaultCountryC
 }
 
 /**
- * Builds a native SMS link for mobile devices.
- * Supports multiple recipients at once in native Messages app!
- */
-export function buildSmsUrl(
-  phones: string | string[],
-  message: string,
-  defaultCountryCode = '55'
-): string {
-  const isIOS =
-    typeof navigator !== 'undefined' &&
-    /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
-
-  const phoneArray = Array.isArray(phones) ? phones : [phones];
-  const cleanList = phoneArray
-    .map((p) => getCleanPhoneForWhatsApp(p, defaultCountryCode))
-    .filter(Boolean);
-
-  const delimiter = isIOS ? ';' : ',';
-  const recipientStr = cleanList.join(delimiter);
-  const encodedMsg = encodeURIComponent(message);
-
-  // iOS uses &body= while Android uses ?body=
-  const separator = isIOS ? '&' : '?';
-  return `sms:${recipientStr}${separator}body=${encodedMsg}`;
-}
-
-
-/**
  * Calculates human-readable status for a return date
  */
 export function getReturnDateInfo(returnDateStr?: string): {

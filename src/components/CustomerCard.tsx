@@ -26,11 +26,9 @@ interface Props {
   onEdit: (lead: CustomerLead) => void;
   onDelete: (id: string) => void;
   onChangeStatus: (id: string, newStatus: LeadStatus) => void;
-  onOpenSendModal: (lead: CustomerLead, channel?: 'store_gateway' | 'whatsapp' | 'sms') => void;
+  onOpenSendModal: (lead: CustomerLead) => void;
   sellerName?: string;
   storeName?: string;
-  privacyMode?: 'store_only' | 'allow_personal_whatsapp';
-  smsSenderName?: string;
 }
 
 export const CustomerCard: React.FC<Props> = ({
@@ -44,8 +42,6 @@ export const CustomerCard: React.FC<Props> = ({
   onOpenSendModal,
   sellerName,
   storeName,
-  privacyMode = 'store_only',
-  smsSenderName,
 }) => {
   const returnInfo = getReturnDateInfo(lead.returnDate);
   const catColor = category?.color || '#10b981';
@@ -208,24 +204,14 @@ export const CustomerCard: React.FC<Props> = ({
               <Trash2 className="w-4 h-4" />
             </button>
 
-            {/* Action 1: Mandar Zap (100% Real, chega na hora) */}
+            {/* Action: Mandar Zap (Abre WhatsApp com mensagem pronta) */}
             <button
-              onClick={() => onOpenSendModal(lead, 'whatsapp')}
+              onClick={() => onOpenSendModal(lead)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md shadow-emerald-500/20 transition cursor-pointer active:scale-95"
-              title="Abre o WhatsApp com mensagem pronta (chega de verdade no celular do cliente)"
+              title="Abre o WhatsApp com mensagem pronta"
             >
               <MessageSquare className="w-3.5 h-3.5" />
               <span>Mandar Zap</span>
-            </button>
-
-            {/* Action 2: Envio Oculto / SMS Loja */}
-            <button
-              onClick={() => onOpenSendModal(lead, 'store_gateway')}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-indigo-950/80 text-slate-300 hover:text-indigo-300 text-xs font-semibold border border-slate-700/80 hover:border-indigo-600/60 transition cursor-pointer active:scale-95"
-              title="SMS com nome da Loja (requer provedor de SMS em Configurações)"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-              <span>SMS Loja</span>
             </button>
           </div>
         </div>

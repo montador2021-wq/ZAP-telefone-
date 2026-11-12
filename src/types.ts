@@ -21,7 +21,7 @@ export interface CustomerLead {
   createdAt: string;
   updatedAt: string;
   lastContactedAt?: string;
-  lastContactChannel?: 'whatsapp' | 'sms' | 'sms_gateway';
+  lastContactChannel?: 'whatsapp';
   contactCount: number;
 }
 
@@ -29,21 +29,12 @@ export interface MessageTemplate {
   id: string;
   title: string;
   body: string;
-  channel?: 'all' | 'whatsapp' | 'sms';
 }
 
 export interface AppSettings {
   sellerName: string;
   storeName: string;
   countryCode: string; // Default: '55' (Brazil)
-  smsSenderName: string; // Custom sender ID e.g. "LOJA_AVISO" (up to 11 chars)
-  defaultChannel: 'whatsapp' | 'sms' | 'store_gateway';
-  privacyMode: 'store_only' | 'allow_personal_whatsapp'; // 'store_only' hides personal number 100%
-  gatewayProvider: 'store_cloud' | 'twilio' | 'zenvia';
-  gatewayApiKey?: string;
-  gatewayAccountSid?: string;
-  gatewayVirtualNumber?: string;
 }
 
 export type FilterStatus = 'all' | 'waiting' | 'contacted' | 'completed';
-

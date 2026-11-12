@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   Lock,
   MessageSquare,
+  Truck,
 } from 'lucide-react';
 import { Category, CustomerLead, LeadStatus, MessageTemplate, AppSettings } from './types';
 import {
@@ -31,6 +32,7 @@ import { calculateTotalBudget, formatBRL } from './utils/currency';
 import { Header } from './components/Header';
 import { StatsBar } from './components/StatsBar';
 import { CategoryBar } from './components/CategoryBar';
+import { ProductArrivalBar } from './components/ProductArrivalBar';
 import { CustomerCard } from './components/CustomerCard';
 import { CustomerModal } from './components/CustomerModal';
 import { CategoryModal } from './components/CategoryModal';
@@ -64,7 +66,6 @@ export default function App() {
 
   const [isBulkSendModalOpen, setIsBulkSendModalOpen] = useState<boolean>(false);
   const [leadsToSend, setLeadsToSend] = useState<CustomerLead[]>([]);
-  const [bulkSendChannel, setBulkSendChannel] = useState<'store_gateway' | 'whatsapp' | 'sms'>('store_gateway');
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
 
@@ -145,10 +146,7 @@ export default function App() {
     );
   };
 
-  const handleMarkContacted = (
-    leadId: string,
-    channel: 'whatsapp' | 'sms' | 'sms_gateway' = 'whatsapp'
-  ) => {
+  const handleMarkContacted = (leadId: string) => {
     setLeads((prev) =>
       prev.map((lead) => {
         if (lead.id !== leadId) return lead;
@@ -157,7 +155,7 @@ export default function App() {
           status: lead.status === 'waiting' ? 'contacted' : lead.status,
           contactCount: (lead.contactCount || 0) + 1,
           lastContactedAt: new Date().toISOString(),
-          lastContactChannel: channel,
+          lastContactChannel: 'whatsapp',
           updatedAt: new Date().toISOString(),
         };
       })
@@ -262,14 +260,7 @@ export default function App() {
   };
 
   // Bulk send opener
-  const handleOpenBulkSend = (
-    leadsList?: CustomerLead[],
-    channel: 'store_gateway' | 'whatsapp' | 'sms' = 'whatsapp'
-  ) => {
-    // If store_gateway is passed but no API key is set, prefer whatsapp
-    const effectiveChannel =
-      channel === 'store_gateway' && !settings.gatewayApiKey ? 'whatsapp' : channel;
-    setBulkSendChannel(effectiveChannel);
+  const handleOpenBulkSend = (leadsList?: CustomerLead[]) => {
     if (leadsList && leadsList.length > 0) {
       setLeadsToSend(leadsList);
     } else {
@@ -317,6 +308,27 @@ export default function App() {
           isCompletedView={isCompletedView}
         />
 
+        {/* Quick Product Arrival Section ("Chegou mercadoria hoje?") */}
+        {!isCompletedView && (
+          <ProductArrivalBar
+            categories={categories}
+            leads={leads}
+            selectedCategoryId={selectedCategoryId}
+            onSelectCategoryArrival={(catId) => {
+              setSelectedCategoryId(catId);
+              setIsCompletedView(false);
+              setIsTodayFiltered(false);
+            }}
+            onClearArrivalFilter={() => setSelectedCategoryId(null)}
+            onQuickBroadcastCategory={(catId) => {
+              const targetLeads = leads.filter(
+                (l) => l.categoryId === catId && l.status === 'waiting'
+              );
+              handleOpenBulkSend(targetLeads);
+            }}
+          />
+        )}
+
         {/* Category Pill Bar with custom colors */}
         <CategoryBar
           categories={categories}
@@ -341,31 +353,80 @@ export default function App() {
           leads={leads}
         />
 
-        {/* Delivery & Channel Notice Banner */}
-        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/70 via-slate-900 to-indigo-950/70 border border-emerald-700/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-lg">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0">
-              <MessageSquare className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-white text-sm">Disparo Direto & Seguro aos Clientes</span>
-                <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase bg-emerald-500 text-slate-950">
-                  Pronto p/ Usar
-                </span>
+        {/* Arrival Banner or WhatsApp Direct Notice Banner */}
+        {selectedCategoryObj && !isCompletedView ? (
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-slate-900 to-emerald-950/90 border-2 border-emerald-500 shadow-xl space-y-3 animate-in fade-in duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-emerald-500 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-md shadow-emerald-500/30">
+                  <Truck className="w-6 h-6 stroke-[2.5]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-black uppercase text-emerald-400 tracking-wider">
+                      Mercadoria Chegou na Loja!
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-slate-950">
+                      {filteredLeads.length} {filteredLeads.length === 1 ? 'cliente esperando' : 'clientes esperando'}
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-white">
+                    Mostrando quem aguarda: <span className="text-emerald-400">{selectedCategoryObj.name}</span>
+                  </h3>
+                  <p className="text-xs text-slate-300">
+                    Potencial de venda na fila: <strong className="text-emerald-300 font-mono">{formatBRL(filteredTotalBudget)}</strong>
+                  </p>
+                </div>
               </div>
-              <p className="text-slate-300 text-[11px] mt-0.5">
-                Envie pelo <strong>WhatsApp oficial</strong> (chega na hora com mensagem pronta) ou via <strong>SMS</strong> do aparelho.
-              </p>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {filteredLeads.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => handleOpenBulkSend(filteredLeads)}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs font-black shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer"
+                  >
+                    <MessageSquare className="w-4 h-4 text-slate-950" />
+                    <span>Avisar Todos no Zap ({filteredLeads.length})</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategoryId(null)}
+                  className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer"
+                >
+                  Ver Todos
+                </button>
+              </div>
             </div>
           </div>
-          <button
-            onClick={() => setIsSettingsModalOpen(true)}
-            className="text-[11px] text-emerald-400 hover:text-white underline font-semibold shrink-0 cursor-pointer"
-          >
-            Ajustar Remetente & Loja
-          </button>
-        </div>
+        ) : (
+          /* WhatsApp Direct Notice Banner */
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/70 via-slate-900 to-emerald-950/70 border border-emerald-700/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-white text-sm">Disparo Direto no WhatsApp</span>
+                  <span className="px-1.5 py-0.2 rounded text-[9px] font-black uppercase bg-emerald-500 text-slate-950">
+                    100% WhatsApp
+                  </span>
+                </div>
+                <p className="text-slate-300 text-[11px] mt-0.5">
+                  Envie pelo <strong>WhatsApp oficial</strong> com mensagem pronta do produto para o cliente receber na hora.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsSettingsModalOpen(true)}
+              className="text-[11px] text-emerald-400 hover:text-white underline font-semibold shrink-0 cursor-pointer"
+            >
+              Configurar Nome & Loja
+            </button>
+          </div>
+        )}
 
         {/* Action Header above customer list: Bulk triggers, Select all & Total Budget */}
         <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1 border-t border-slate-900">
@@ -414,7 +475,7 @@ export default function App() {
                   selectedLeadIds.size > 0
                     ? leads.filter((l) => selectedLeadIds.has(l.id))
                     : filteredLeads;
-                handleOpenBulkSend(targetLeads, 'whatsapp');
+                handleOpenBulkSend(targetLeads);
               }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs font-black shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer"
             >
@@ -448,11 +509,9 @@ export default function App() {
                   }}
                   onDelete={handleDeleteLead}
                   onChangeStatus={handleChangeStatus}
-                  onOpenSendModal={(l, ch) => handleOpenBulkSend([l], ch || settings.defaultChannel || 'store_gateway')}
+                  onOpenSendModal={(l) => handleOpenBulkSend([l])}
                   sellerName={settings.sellerName}
                   storeName={settings.storeName}
-                  privacyMode={settings.privacyMode}
-                  smsSenderName={settings.smsSenderName}
                 />
               );
             })}
@@ -553,7 +612,6 @@ export default function App() {
         templates={templates}
         settings={settings}
         onMarkContacted={handleMarkContacted}
-        initialChannel={bulkSendChannel}
       />
 
       <SettingsModal

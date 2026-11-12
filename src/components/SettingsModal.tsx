@@ -7,11 +7,9 @@ import {
   Download,
   Upload,
   Share2,
-  Check,
-  Smartphone,
   HardDrive,
-  RefreshCw,
-  ShieldCheck,
+  MessageSquare,
+  Globe,
 } from 'lucide-react';
 import { AppSettings } from '../types';
 import { exportBackupData, importBackupData } from '../utils/storage';
@@ -34,10 +32,6 @@ export const SettingsModal: React.FC<Props> = ({
   const [sellerName, setSellerName] = useState(settings.sellerName);
   const [storeName, setStoreName] = useState(settings.storeName);
   const [countryCode, setCountryCode] = useState(settings.countryCode || '55');
-  const [smsSenderName, setSmsSenderName] = useState(settings.smsSenderName || 'LOJA_AVISO');
-  const [defaultChannel, setDefaultChannel] = useState<'store_gateway' | 'whatsapp' | 'sms'>(settings.defaultChannel || 'store_gateway');
-  const [privacyMode, setPrivacyMode] = useState<'store_only' | 'allow_personal_whatsapp'>(settings.privacyMode || 'store_only');
-  const [gatewayApiKey, setGatewayApiKey] = useState(settings.gatewayApiKey || '');
   const [copiedLink, setCopiedLink] = useState(false);
   const [importStatus, setImportStatus] = useState<string | null>(null);
 
@@ -51,13 +45,6 @@ export const SettingsModal: React.FC<Props> = ({
       sellerName: sellerName.trim() || 'Vendedor',
       storeName: storeName.trim() || 'Minha Loja',
       countryCode: countryCode.trim() || '55',
-      smsSenderName: smsSenderName.trim().toUpperCase().replace(/[^A-Z0-9_]/g, '').slice(0, 11) || 'LOJA',
-      defaultChannel,
-      privacyMode,
-      gatewayProvider: settings.gatewayProvider || 'store_cloud',
-      gatewayApiKey: gatewayApiKey.trim() || undefined,
-      gatewayAccountSid: settings.gatewayAccountSid,
-      gatewayVirtualNumber: settings.gatewayVirtualNumber,
     });
     onClose();
   };
@@ -114,17 +101,17 @@ export const SettingsModal: React.FC<Props> = ({
         {/* Header */}
         <div className="p-4 border-b border-slate-800 bg-slate-950/60 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
               <Settings className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-base font-bold text-white">Configurações & Backup</h2>
-              <p className="text-xs text-slate-400">Personalize seu nome e dados salvos no celular</p>
+              <p className="text-xs text-slate-400">Personalize seu nome e dados do WhatsApp</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -134,7 +121,7 @@ export const SettingsModal: React.FC<Props> = ({
           {/* Seller Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Seu Nome (usado nas mensagens)
+              Seu Nome de Vendedor (aparece nas mensagens do WhatsApp)
             </label>
             <div className="relative">
               <User className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
@@ -151,7 +138,7 @@ export const SettingsModal: React.FC<Props> = ({
           {/* Store Name */}
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Nome da sua Loja
+              Nome da sua Loja (usado nas mensagens)
             </label>
             <div className="relative">
               <Store className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
@@ -165,130 +152,43 @@ export const SettingsModal: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Country Code & Preferred Channel */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                DDI País (ex: 55)
-              </label>
+          {/* Country Code */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">
+              DDI do País (padrão Brasil: 55)
+            </label>
+            <div className="relative">
+              <Globe className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
               <input
                 type="text"
                 value={countryCode}
                 onChange={(e) => setCountryCode(e.target.value)}
-                placeholder="55 para Brasil"
-                className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 font-mono"
+                placeholder="55"
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-sm focus:outline-none focus:border-emerald-500 font-mono"
               />
             </div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              O DDI 55 é adicionado automaticamente aos números com DDD para abrir o WhatsApp.
+            </p>
+          </div>
 
+          {/* WhatsApp Direct Information */}
+          <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60 flex items-start gap-2.5 text-xs text-emerald-200">
+            <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Canal Preferido
-              </label>
-              <select
-                value={defaultChannel}
-                onChange={(e) => setDefaultChannel(e.target.value as 'store_gateway' | 'whatsapp' | 'sms')}
-                className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs sm:text-sm focus:outline-none focus:border-indigo-500"
-              >
-                <option value="store_gateway">🛡️ Remetente da Loja (Sem Meu Número)</option>
-                <option value="whatsapp">📱 WhatsApp Pessoal (Mostra número)</option>
-                <option value="sms">💬 SMS Celular (Nativo)</option>
-              </select>
+              <strong className="text-white block font-bold">100% Focado no WhatsApp</strong>
+              O aplicativo conecta diretamente ao WhatsApp oficial. Suas mensagens vão com o texto do produto pronto e chegam na hora no celular do cliente.
             </div>
-          </div>
-
-          {/* Privacy Mode Selection */}
-          <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-700/60 space-y-2.5">
-            <span className="text-xs font-bold text-white flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-indigo-400" />
-              <span>Proteção do seu Número Pessoal</span>
-            </span>
-
-            <div className="space-y-2 text-xs text-slate-300">
-              <label className="flex items-start gap-2.5 cursor-pointer p-2 rounded-lg bg-slate-900/80 border border-indigo-900/60">
-                <input
-                  type="radio"
-                  name="privacyMode"
-                  checked={privacyMode === 'store_only'}
-                  onChange={() => setPrivacyMode('store_only')}
-                  className="mt-0.5 text-indigo-500 focus:ring-indigo-500"
-                />
-                <div>
-                  <strong className="text-white block font-bold">100% Ocultar Meu Número (Recomendado)</strong>
-                  <span className="text-slate-400 text-[11px] leading-tight block">
-                    O app prioriza o envio com o nome da loja. Seu celular e seu chip nunca são mostrados para o cliente.
-                  </span>
-                </div>
-              </label>
-
-              <label className="flex items-start gap-2.5 cursor-pointer p-2 rounded-lg bg-slate-900/40 border border-slate-800">
-                <input
-                  type="radio"
-                  name="privacyMode"
-                  checked={privacyMode === 'allow_personal_whatsapp'}
-                  onChange={() => setPrivacyMode('allow_personal_whatsapp')}
-                  className="mt-0.5 text-indigo-500 focus:ring-indigo-500"
-                />
-                <div>
-                  <strong className="text-slate-200 block font-semibold">Permitir WhatsApp Pessoal</strong>
-                  <span className="text-slate-400 text-[11px] leading-tight block">
-                    Exibe o botão de WhatsApp pessoal nos cartões dos clientes.
-                  </span>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          {/* SMS Corporate Sender Name (Remetente Personalizado) */}
-          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Smartphone className="w-3.5 h-3.5 text-sky-400" />
-                <span>Remetente do SMS (Nome da Loja)</span>
-              </label>
-              <span className="text-[10px] text-slate-500 font-mono">Máx 11 letras</span>
-            </div>
-            <input
-              type="text"
-              maxLength={11}
-              value={smsSenderName}
-              onChange={(e) => setSmsSenderName(e.target.value.toUpperCase())}
-              placeholder="Ex: LOJA, AVISO"
-              className="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-sky-300 text-sm font-mono tracking-wider focus:outline-none focus:border-sky-500"
-            />
-            <p className="text-[11px] text-slate-400 leading-tight">
-              Aparece como o nome da sua empresa no celular do cliente (ex: <strong>{smsSenderName || 'LOJA'}</strong>) em serviços de SMS corporativo.
-            </p>
-          </div>
-
-          {/* SMS Gateway API Key (Opcional - Para envio real de SMS com remetente LOJA) */}
-          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Chave de API de SMS (Opcional)</span>
-              </label>
-              <span className="text-[10px] text-slate-500 font-mono">SMS Dev / Twilio</span>
-            </div>
-            <input
-              type="password"
-              value={gatewayApiKey}
-              onChange={(e) => setGatewayApiKey(e.target.value)}
-              placeholder="Cole sua chave de API aqui se tiver"
-              className="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-indigo-500"
-            />
-            <p className="text-[11px] text-slate-400 leading-tight">
-              Se você não tiver chave de SMS, não se preocupe: você pode enviar diretamente pelo <strong>WhatsApp</strong> ou pelo <strong>SMS do celular</strong> sem pagar nada!
-            </p>
           </div>
 
           {/* Memory / Storage / Backup section */}
           <div className="pt-3 border-t border-slate-800 space-y-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
               <HardDrive className="w-4 h-4 text-emerald-400" />
-              <span>Memória do Celular & Compartilhamento</span>
+              <span>Memória do Celular & Backup</span>
             </div>
             <p className="text-xs text-slate-400">
-              Todos os clientes e categorias ficam salvos localmente no armazenamento do seu dispositivo. Você pode exportar ou compartilhar o link com outro vendedor.
+              Todos os clientes e categorias ficam salvos na memória do seu aparelho. Você pode exportar uma cópia de segurança ou enviar o link para outro vendedor.
             </p>
 
             <div className="grid grid-cols-2 gap-2">
@@ -352,7 +252,7 @@ export const SettingsModal: React.FC<Props> = ({
               type="submit"
               className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-md cursor-pointer"
             >
-              Salvar
+              Salvar Configurações
             </button>
           </div>
         </form>
